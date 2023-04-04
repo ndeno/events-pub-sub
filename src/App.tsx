@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import * as React from "react";
+import "./App.css";
+import { store } from "./store";
+
+// typed JHerr use external store
+// https://github.com/jherr/syncexternalstore/tree/main/csr
+
+const useStore = () => {
+  const [state, setState] = React.useState(store.getState());
+
+  React.useEffect(() => {
+    store.subscribe(setState);
+  }, []);
+
+  return state;
+};
+
+type ItemProp = {
+  item: keyof ReturnType<typeof useStore>;
+};
+
+const DisplayValue = ({ item }: ItemProp) => (
+  <div>
+    {item} : {useStore()[item]}
+  </div>
+);
+
+const IncrementItem = ({ item }: ItemProp) => (
+  <button
+    onClick={() => {
+      const state = store.getState();
+      store.setState({
+        ...state,
+        [item]: state[item] + 1,
+      });
+    }}
+  >
+    Increment {item}
+  </button>
+);
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <h1>Events Here</h1>
+      <IncrementItem item="valueOne" />
+      <DisplayValue item="valueOne" />
+      <IncrementItem item="valueTwo" />
+      <DisplayValue item="valueTwo" />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
